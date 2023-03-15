@@ -214,6 +214,7 @@ lcd_display(x[i]);
 }
 */
 
+
 // Graphical LCD display 
 #include "lpc214x.h"
 #include "image.h"
@@ -233,136 +234,248 @@ lcd_display(x[i]);
 #define TotalPage 8
 #define FOSC 12000000
 void delay(int k) ;
-void GLCD_Command(int Command) /* GLCD command function */
+void GLCD_Command(int Command) 
 {
-//IOCLR1= (LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7); /*
-These
-bits are set to '1', rest are zeros*/
-IOCLR1=0xFF000000;
-Command = Command<<24;
-IOSET1 = Command;
-/* Copy command on data pin */
-IOCLR1 = RS; /* Make RS LOW to select
-command register */
-IOCLR1 = RW;
-/* Make RW LOW to select write
-operation */
-IOSET1 = EN;/* Make HIGH to LOW transition on Enable pin */
-delay(5);
-IOCLR1 = EN;
+    /* 
+        GLCD command function 
+        IOCLR1= (LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7);
+        These bits are set to '1', rest are zeros
+    */
+    IOCLR1=0xFF000000;
+    Command = Command<<24;
+    IOSET1 = Command;
+    /* Copy command on data pin */
+    IOCLR1 = RS; /* Make RS LOW to select
+    command register */
+    IOCLR1 = RW;
+    /* Make RW LOW to select write
+    operation */
+    IOSET1 = EN;/* Make HIGH to LOW transition on Enable pin */
+    delay(5);
+    IOCLR1 = EN;
 }
-void GLCD_Data(int Data)
-{
-/* GLCD data function */
-//IOCLR1= (LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7);
-IOCLR1=0xFF000000;Data = Data << 24;
-IOSET1 = Data; /* Copy data on data pin */
-IOSET1 = RS; /* Make RS HIGH to select data register */
-IOCLR1 = RW; /* Make RW LOW to select write operation */
-IOSET1 = EN;/* Make HIGH to LOW transition on Enable pin */
-delay(5);
-IOCLR1 = EN;
+void GLCD_Data(int Data) {
+    /* GLCD data function */
+    //IOCLR1= (LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7);
+    IOCLR1=0xFF000000;Data = Data << 24;
+    IOSET1 = Data; /* Copy data on data pin */
+    IOSET1 = RS; /* Make RS HIGH to select data register */
+    IOCLR1 = RW; /* Make RW LOW to select write operation */
+    IOSET1 = EN;/* Make HIGH to LOW transition on Enable pin */
+    delay(5);
+    IOCLR1 = EN;
 }
-void GLCD_Init()
-{
-/* GLCD initialize function */
-PINSEL1=0x00000000;
-//IODIR1|=
-(LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7|RS|RW|EN|CS1|
-CS2); /*
-Configure all pins as output*/
-IODIR1|= 0xFFFF0000;
-IOSET1 = (CS1 |
-CS2);/* Select both left & right half of
-display
-*/delay(20);
-GLCD_Command(0x3E);
-GLCD_Command(0x40);
-GLCD_Command(0xB8);
-GLCD_Command(0xC0);
-/* Display OFF */
-/* Set Y address (column=0)
-*/
-/* Set x address (page=0) */
-/* Set z address (start line=0)
-*/
-GLCD_Command(0x3F); /* Display ON */
+void GLCD_Init() {
+    /* 
+        GLCD initialize function
+        IODIR1|= (LCD_D0|LCD_D1|LCD_D2|LCD_D3|LCD_D4|LCD_D5|LCD_D6|LCD_D7|RS|RW|EN|CS1|CS2); 
+    */
+
+    PINSEL1=0x00000000;
+    Configure all pins as output
+    IODIR1|= 0xFFFF0000;
+    IOSET1 = (CS1 | CS2); // Select both left & right half of display
+    delay(20);
+    GLCD_Command(0x3E);     //Display OFF
+    GLCD_Command(0x40);     //Set Y address (column=0)
+    GLCD_Command(0xB8);     //Set x address (page=0)
+    GLCD_Command(0xC0);     //Set z address (start line=0)
+    GLCD_Command(0x3F);     /* Display ON */
 }
 void GLCD_ClearAll()
 {
-int column,page;
-/* GLCD all display clear function */for(page=0;page<8;page++)
-display */
-{
-IOSET1 = CS1;
-controller */
-IOCLR1 = CS2;
-GLCD_Command(0x40);
-GLCD_Command((0xB8+page));
-/* Print 16 pages i.e. 8 page of each
-half of
-/* If yes then change segment
-/* Set Y address (column=0) */
-/* Increment page address */
-for(column=0;column<128;column++)
-{
-controller */
+    int column,page;
+    /* GLCD all display clear function */
+    for(page=0;page<8;page++) {
+        // Print 16 pages i.e. 8 page of each controller 
+        IOSET1 = CS1;
+        IOCLR1 = CS2;
+        GLCD_Command(0x40);
+        GLCD_Command((0xB8+page));
+        /* 
+            If yes then change segment
+            Set Y address (column=0) 
+            Increment page address 
+        */
+        for(column=0;column<128;column++) {}
+        if (column == 64) {
+            IOCLR1 = CS1;                   //If yes then change segment
+            IOSET1 = CS2;
+            GLCD_Command(0x40);             //Set Y address (column=0)
+            GLCD_Command((0xB8+page));      //Increment page address 
+        }
+    GLCD_Data(0);       //Print 64 column of each page
+    }
 }
-}
-if (column == 64)
-{
-IOCLR1 = CS1; /* If yes then change segment
-IOSET1 = CS2;
-GLCD_Command(0x40);
-/* Set Y address (column=0) */
-GLCD_Command((0xB8+page));/* Increment page
-address */
-}
-GLCD_Data(0);
-/* Print 64 column of each page
-*/
-}
-void GLCD_String(const char *image)
-{
-/* GLCD string write function */
-int column,page;
-for(page=0;page<8;page++) /* Print 16 pages i.e. 8 page of each half ofdisplay */
-{
-IOSET1 = CS1;
-IOCLR1 = CS2;
-GLCD_Command(0x40);
-GLCD_Command((0xB8+page));
-/* If yes then change segment
-controller */
-/* Set Y address (column=0) */
-/* Increment page address */
-for(column=0;column<128;column++)
-{
-controller */
-if (column == 64)
-{
-IOCLR1 = CS1; /* If yes then change segment
-IOSET1 = CS2;
-GLCD_Command(0x40); /* Set Y address (column=0) */
-GLCD_Command((0xB8+page));/* Increment page address */
-}
-GLCD_Data(*image++); /* Print 64 column of each page
-*/
-}
-}
+void GLCD_String(const char *image) {
+    // GLCD string write function 
+    int column,page;
+    for(page=0;page<8;page++) /* Print 16 pages i.e. 8 page of each half ofdisplay */
+    {
+        IOSET1 = CS1;
+        IOCLR1 = CS2;
+        GLCD_Command(0x40);
+        GLCD_Command((0xB8+page));
+        /* If yes then change segment
+        controller */
+        /* Set Y address (column=0) */
+        /* Increment page address */
+        for(column=0;column<128;column++)
+        {
+            if (column == 64) {
+                IOCLR1 = CS1; //If yes then change segment
+                IOSET1 = CS2;
+                GLCD_Command(0x40); //Set Y address (column=0)
+                GLCD_Command((0xB8+page));  //Increment page address
+            }
+            GLCD_Data(*image++); //Print 64 column of each page
+        }
+    }
 }
 // LCD Delay Function
-void delay(int k)
-{
-int a,b;
-for(a=0;a<=k;a++)
-for(b=0;b<100;b++);
-}int main(void)
-{
-VPBDIV = 0X01;
-delay(1000);
-GLCD_Init(); /* Initialize GLCD */
-GLCD_ClearAll(); /* Clear all GLCD display */
-GLCD_String(img); /* Display image on GLCD display */
-while(1);
+void delay(int k) {
+    int a,b;
+    for(a=0;a<=k;a++)
+    for(b=0;b<100;b++);
+}
+int main(void) {
+    VPBDIV = 0X01;
+    delay(1000);
+    GLCD_Init(); /* Initialize GLCD */
+    GLCD_ClearAll(); /* Clear all GLCD display */
+    GLCD_String(img); /* Display image on GLCD display */
+    while(1);
+}
+
+
+// RTC
+#include"LPC214x.h"
+#define LCD (0xff<<8)
+#define RS (1<<5)
+#define RW (1<<6)
+#define EN (1<<7)void delay_ms(unsigned int x,int y);
+void LCD_data(unsigned int x);
+void LCD_cmd (unsigned int x);
+void LCD_ini();
+void LCD_str(char x[]);
+void RTC_init();
+int hextodec(int x);
+int main() {
+    PINSEL0=0X00000000;
+    IODIR0=0XFFFFFFFF;
+    int hour, min, sec, day, month, year;
+    LCD_ini();
+    RTC_init();
+    LCD_cmd(0x80);
+    LCD_str("Time:");
+    LCD_cmd(0xC0);
+    LCD_str("Date:");
+    while(1){
+        hour= hextodec(HOUR);
+        min= hextodec(MIN);
+        sec= hextodec(SEC);
+        day= hextodec(DOM);month= hextodec(MONTH);
+        year= hextodec(YEAR);
+        delay_ms(100,10);
+        LCD_cmd(0x85);
+        LCD_data((hour/10)+'0');
+        LCD_data((hour%10)+'0');
+        LCD_cmd(0x87);
+        LCD_data(':');
+        LCD_cmd(0x88);
+        LCD_data((min/10)+'0');
+        LCD_data((min%10)+'0');
+        LCD_cmd(0x8A);
+        LCD_data(':');
+        LCD_cmd(0x8B);
+        LCD_data((sec/10)+'0');
+        LCD_data((sec%10)+'0');
+        LCD_cmd(0xC5);
+        LCD_data((day/10)+'0');
+        LCD_data((day%10)+'0');
+        LCD_cmd(0xC7);
+        LCD_data('/');
+        LCD_cmd(0xC8);
+        LCD_data((month/10)+'0');
+        LCD_data((month%10)+'0');
+        LCD_cmd(0xCA);LCD_data('/');
+        LCD_cmd(0xCB);
+        LCD_data((year/10)+'0');
+        LCD_data((year%10)+'0');
+    }
+}
+void RTC_init() {
+    CCR=0x11;
+    HOUR= 14;
+    MIN= 30;
+    SEC= 10;
+    DOM= 23;
+    MONTH= 02;
+    YEAR= 23;
+}
+int hextodec (int value) {
+    int temp;
+    temp= value & 0x0f;
+    value= (value & 0xf0)>>4;
+    value= value*16;
+    if (temp <= 9)
+        value = value + temp;
+    else if (temp > 9) {
+        switch (temp) {
+        case 0x0a:
+            value= value + 10;
+            break;
+        case 0x0b:
+            value= value + 11;
+            break;
+        case 0x0c:
+            value= value + 12;
+            break;
+        case 0x0d:
+            value= value + 13;
+            break;
+        case 0x0e:
+            value= value + 14;
+            break;
+        case 0x0f:
+            value= value + 15;
+            break;
+        }
+    }
+    return(value);
+}
+void LCD_data(unsigned int x) {
+    IOCLR0 = 0x0000FF00;
+    x =(x<<8);
+    IOSET0 = x;
+    IOSET0 =RS;
+    IOCLR0 =RW;
+    IOSET0 =EN;
+    delay_ms(100,10);
+    IOCLR0 =EN;
+}
+void LCD_cmd (unsigned int x) {
+    IOCLR0 = 0x0000FF00;
+    x =(x<<8);
+    IOSET0 = x;IOCLR0 =RS;
+    IOCLR0 =RW;
+    IOSET0 =EN;
+    delay_ms(100,10);
+    IOCLR0 =EN;
+}
+void LCD_ini() {
+    LCD_cmd(0X38);
+    LCD_cmd(0X0e);
+    LCD_cmd(0X01);
+    LCD_cmd(0X06);
+}
+void LCD_str(char x[]) {
+    int i;
+    for(i=0;x[i]!='\0';i++)
+        LCD_data(x[i]);
+}
+void delay_ms(unsigned int x,int y) {
+    unsigned int i,j;
+    for(i=0;i<x;i++)
+    for(j=0;j<y;j++);
 }
