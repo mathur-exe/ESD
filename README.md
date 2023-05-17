@@ -1,6 +1,6 @@
-## ADC with Interrupt
+# ADC with Interrupt
 
-![]()
+![_](https://github.com/mathur-exe/ESD/blob/main/img/e4_ADC.png)
 
 ```
 #include "LPC214x.h"
@@ -127,9 +127,9 @@ void DisplayHexLcd(int LcdData)
 }
 ```
 
-## UART
+# UART
 
-![]()
+![_](https://github.com/mathur-exe/ESD/blob/main/img/ID_UART.png)
 ```
 #include "lpc214x.h"
 #define FOSC 12000000
@@ -180,7 +180,9 @@ char Receivem()
 }
 ```
 
-## GPS
+# GPS
+
+![_](https://github.com/mathur-exe/ESD/blob/main/img/ID_GPS.png)
 
 ```
 #include "gps.h"
@@ -235,7 +237,9 @@ int main()
 }
 ```
 
-## EEPROM
+# EEPROM
+
+![_](https://github.com/mathur-exe/ESD/blob/main/img/ID_EEPROM.png)
 
 ```
 #include "LPC214x.h"
@@ -409,7 +413,9 @@ void ReadEeprom0(char SlaveAddress, unsigned char *Data, char len)
 }
 ```
 
-## RTOS
+# RTOS
+
+![_](https://github.com/mathur-exe/ESD/blob/main/img/ID_RTOS.png)
 
 ```
 #include "includes.h"
@@ -510,6 +516,8 @@ void Task3(void *pdata)
 ```
 
 ## RTOS Semaphore
+
+![_](https://github.com/mathur-exe/ESD/blob/main/img/ID_RTOS_Sem.png)
 
 ```
 #include "includes.h"
@@ -623,6 +631,8 @@ void Task2(void *pdata)
 ```
 
 ## RTC
+
+![_](https://github.com/mathur-exe/ESD/blob/main/img/RTC%20Interfacing%20Diagram.png)
 
 ```
 #include "LPC214x.h"
